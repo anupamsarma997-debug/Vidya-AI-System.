@@ -85,7 +85,16 @@ class MainActivity : Activity() {
             else -> matches.joinToString("\n\n") { record ->
                 "${record.machine.manufacturer} ${record.machine.model}\n" +
                     "${record.part.name} (${record.part.partId})\n" +
-                    record.part.function
+                    record.part.function +
+                    if (record.symptoms.isNotEmpty()) "\nSymptoms: " +
+                        record.symptoms.joinToString("; ") { it.description } else "" +
+                    if (record.errorCodes.isNotEmpty()) "\nError codes: " +
+                        record.errorCodes.joinToString("; ") { "${it.code}: ${it.meaning} [${it.machineScope}]" } else "" +
+                    if (record.hazards.isNotEmpty()) "\nSafety hazards: " +
+                        record.hazards.joinToString(", ") else "" +
+                    "\nSources: " + record.sources.joinToString("; ") {
+                        "${it.title} (${it.license})"
+                    }
             }
         }
     }
