@@ -1,8 +1,8 @@
-# Vidya large-scale image target: 654,321 real images
+# Vidya large-scale image target: 8 crore (80,000,000) real images
 
 ## Hard target
 
-Vidya's minimum scale target is **654,321 unique, usable, source-traceable real images**. This is a target, not an achieved count. The repository currently does not contain these archives, and no large-scale training run has been completed.
+Vidya's minimum scale target is **8 crore (80,000,000) unique, usable, source-traceable real images**. This is a target, not an achieved count. The repository currently does not contain these archives, and no large-scale training run has been completed.
 
 Do not count:
 - synthetic/rendered/generated images toward the real-image target;
@@ -43,7 +43,7 @@ A single classifier must not be trained by mixing incompatible labels. Vidya nee
 
 ## Synthetic data: separate optional pool
 
-[SORDI.ai](https://sordi.ai/dataset) reports over 1.2 million synthetic industrial images and 120+ object classes. These are digital-twin / rendered images, not real photographs. They may be useful as a separate synthetic pretraining pool after Kaggle license terms are checked, but they must never be used to claim the 654,321 real-image target has been met. Evaluate real-world transfer on held-out real images.
+[SORDI.ai](https://sordi.ai/dataset) reports over 1.2 million synthetic industrial images and 120+ object classes. These are digital-twin / rendered images, not real photographs. They may be useful as a separate synthetic pretraining pool after Kaggle license terms are checked, but they must never be used to claim the 80,000,000 real-image target has been met. Evaluate real-world transfer on held-out real images.
 
 ## Training and evaluation protocol
 
@@ -70,4 +70,4 @@ Real-IAD 1024px is reported at about 53 GB; raw data about 507 GB. MANTA and Rea
 - Model training on these large datasets: not started.
 - On-device integration: not started.
 
-The next valid milestone is to obtain access to Real-IAD Variety / Real-IAD and verify the license, then download a manageable source subset and run the task-specific baseline. The 654,321 count is a minimum acceptance gate, not a promise that all datasets can be legally combined or that the model will reach a particular accuracy.
+The 8-crore target requires a staged, distributed data program; it cannot be met by the small public datasets listed above. Build the pipeline in stages: (1) acquire legally usable public datasets, (2) sign data-sharing agreements with OEMs, repair networks, workshops, parts sellers and fleet operators, (3) collect consented real-world images with machine/model/part metadata, (4) deduplicate and quality-check centrally, (5) train separate task-specific models using distributed GPU jobs, and (6) evaluate on machine- and source-separated held-out data. The next valid milestone is to obtain access to Real-IAD Variety / Real-IAD and verify the license, then download a manageable source subset and run the task-specific baseline. The 80,000,000 count is a minimum acceptance gate, not a promise that all datasets can be legally combined or that the model will reach a particular accuracy.
