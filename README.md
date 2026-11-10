@@ -7,6 +7,8 @@ Vidya is intended to become an offline-first assistant that helps users identify
 ## Current verified repository contents
 - Project overview and development documentation.
 - Proposed architecture, dataset governance, and validation plan.
+- Versioned machine/part JSON Schema with source and verification requirements.
+- A conservative safety-gate domain model with unit tests (not yet connected to a repair workflow).
 - A minimal Kotlin Android application shell is now present under `app/`.
 - GitHub Actions CI is configured to build a debug APK and run unit tests.
 - Camera recognition, model weights, datasets, and repair workflows are still not implemented.
@@ -44,6 +46,8 @@ Do not interpret proposed targets or diagrams as measured performance. No accura
 - [Dataset governance](docs/dataset-governance.md)
 - [Testing and release plan](docs/testing-plan.md)
 - [Dataset register template](data/dataset-register.csv)
+- [Machine/part data model](docs/machine-part-data-model.md)
+- [Machine/part JSON Schema](data/schemas/machine-part-record.schema.json)
 
 ## Evidence rules
 - Never label a dataset downloaded until the archive is obtained, extracted, and checked.
