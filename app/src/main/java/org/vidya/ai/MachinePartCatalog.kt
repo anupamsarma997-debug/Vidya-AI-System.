@@ -23,6 +23,11 @@ object MachinePartCatalog {
     private fun searchableText(record: MachinePartRecord): List<String> = listOfNotNull(
         record.recordId, record.machine.category, record.machine.manufacturer,
         record.machine.model, record.machine.variant, record.machine.modelYear?.toString(),
-        record.part.partId, record.part.name, record.part.function, record.part.oemPartNumber
+        record.part.partId, record.part.name, record.part.function, record.part.oemPartNumber,
+        record.part.locationDescription,
+        *record.part.compatibleVariants.toTypedArray(),
+        *record.symptoms.flatMap { listOf(it.symptomId, it.description) + it.possibleCauses }.toTypedArray(),
+        *record.errorCodes.flatMap { listOf(it.code, it.meaning, it.machineScope) }.toTypedArray(),
+        *record.hazards.map { it.name }.toTypedArray()
     )
 }
