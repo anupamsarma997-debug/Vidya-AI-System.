@@ -31,7 +31,7 @@ class MainActivity : Activity() {
 
         val query = EditText(this).apply {
             hint = "Search machine, model, part name or ID"
-            singleLine = true
+            setSingleLine(true)
         }
         content.addView(query, matchWrap())
         content.addView(Button(this).apply {
