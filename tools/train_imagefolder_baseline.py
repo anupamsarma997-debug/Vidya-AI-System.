@@ -90,14 +90,40 @@ def main():
         loss_sum = 0.0
         correct = 0
         total = 0
+        confusion = torch.zeros((len(train_ds.classes), len(train_ds.classes)), dtype=torch.int64)
         with torch.no_grad():
             for images, labels in loader:
                 images, labels = images.to(device), labels.to(device)
                 logits = model(images)
+                predictions = logits.argmax(1)
                 loss_sum += criterion(logits, labels).item() * labels.size(0)
-                correct += (logits.argmax(1) == labels).sum().item()
+                correct += (predictions == labels).sum().item()
                 total += labels.size(0)
-        return {"loss": loss_sum / total, "accuracy": correct / total, "samples": total}
+                for truth, predicted in zip(labels.view(-1), predictions.view(-1)):
+                    confusion[int(truth), int(predicted)] += 1
+        per_class = {}
+        precisions, recalls, f1_scores = [], [], []
+        for index, class_name in enumerate(train_ds.classes):
+            tp = int(confusion[index, index])
+            fp = int(confusion[:, index].sum()) - tp
+            fn = int(confusion[index, :].sum()) - tp
+            precision = tp / (tp + fp) if tp + fp else 0.0
+            recall = tp / (tp + fn) if tp + fn else 0.0
+            f1 = 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+            per_class[class_name] = {"precision": precision, "recall": recall, "f1": f1, "support": int(confusion[index, :].sum())}
+            precisions.append(precision)
+            recalls.append(recall)
+            f1_scores.append(f1)
+        return {
+            "loss": loss_sum / total,
+            "accuracy": correct / total,
+            "samples": total,
+            "macro_precision": sum(precisions) / len(precisions),
+            "macro_recall": sum(recalls) / len(recalls),
+            "macro_f1": sum(f1_scores) / len(f1_scores),
+            "per_class": per_class,
+            "confusion_matrix": confusion.tolist(),
+        }
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     best_val = float("inf")
