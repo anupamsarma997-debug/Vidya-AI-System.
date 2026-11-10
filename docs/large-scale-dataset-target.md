@@ -37,7 +37,7 @@ A single classifier must not be trained by mixing incompatible labels. Vidya nee
 | [MVTec AD](https://www.mvtec.com/research-teaching/datasets/mvtec-ad) | 5,354+ | CC BY-NC-SA 4.0; non-commercial only. Separate license-restricted research pool. |
 | [KolektorSDD2](https://www.vicos.si/resources/kolektorsdd2/) | 3,347 | CC BY-NC-SA 4.0; non-commercial only. |
 | [NEU surface defect database](https://faculty.neu.edu.cn/songkc/en/zdylm/263265/) | 1,800 | Reuse license not clearly stated; permission needed before commercial use. |
-| [MPDD](https://github.com/ stepanjezek/MPDD) | 1,000+ | CC BY-NC-SA reported by dataset index; verify primary repository license and image count. |
+| [MPDD](https://github.com/stepanje/MPDD) | 1,000+ | CC BY-NC-SA reported by dataset index; verify primary repository license and image count. |
 
 **Important arithmetic note:** adding headline counts from these sources is not a valid unique real-image count. Some sources are gated, some have unclear licensing, some contain non-machine categories, and some are not downloadable. There may be overlap. The verified unique training count remains **0** until archives are downloaded, extracted, inspected, deduplicated, licensed, and split.
 
