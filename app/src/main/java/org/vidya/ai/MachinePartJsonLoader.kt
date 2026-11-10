@@ -133,7 +133,9 @@ object MachinePartJsonLoader {
     }
 
     private fun JSONObject.optionalStringArray(key: String): List<String> {
-        val array = optJSONArray(key) ?: return emptyList()
+        if (!has(key) || isNull(key)) return emptyList()
+        val array = optJSONArray(key)
+            ?: throw IllegalArgumentException("$key must be an array")
         return buildList {
             for (i in 0 until array.length()) {
                 val value = array.get(i)
@@ -144,7 +146,9 @@ object MachinePartJsonLoader {
     }
 
     private fun <T> JSONObject.optionalObjectArray(key: String, map: (JSONObject) -> T): List<T> {
-        val array = optJSONArray(key) ?: return emptyList()
+        if (!has(key) || isNull(key)) return emptyList()
+        val array = optJSONArray(key)
+            ?: throw IllegalArgumentException("$key must be an array")
         return buildList {
             for (i in 0 until array.length()) {
                 val value = array.optJSONObject(i)
