@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vidya.example/schemas/machine-part-record.schema.json",
+  "title": "Vidya Machine Part Record",
+  "description": "A source-traceable machine and component record. Example records must not be treated as verified repair advice.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_id", "machine", "part", "sources", "verification"],
+  "properties": {
+    "record_id": { "type": "string", "minLength": 1 },
+    "machine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "manufacturer", "model"],
+      "properties": {
+        "category": { "type": "string", "minLength": 1 },
+        "manufacturer": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "variant": { "type": ["string", "null"] },
+        "model_year": { "type": ["integer", "null"], "minimum": 1900, "maximum": 2100 },
+        "serial_range": { "type": ["string", "null"] }
+      }
+    },
+    "part": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["part_id", "name", "function"],
+      "properties": {
+        "part_id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "function": { "type": "string", "minLength": 1 },
+        "location_description": { "type": ["string", "null"] },
+        "oem_part_number": { "type": ["string", "null"] },
+        "compatible_variants": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "symptoms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["symptom_id", "description"],
+        "properties": {
+          "symptom_id": { "type": "string" },
+          "description": { "type": "string" },
+          "possible_causes": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "error_codes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["code", "meaning", "machine_scope"],
+        "properties": {
+          "code": { "type": "string" },
+          "meaning": { "type": "string" },
+          "machine_scope": { "type": "string" }
+        }
+      }
+    },
+    "hazards": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["high_voltage", "fuel_or_gas", "pressurized_system", "suspended_load", "moving_machinery", "hot_surface", "chemical_exposure", "unknown"]
+      },
+      "uniqueItems": true
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_type", "title", "url_or_identifier", "license"],
+        "properties": {
+          "source_type": { "type": "string", "enum": ["manufacturer_manual", "service_bulletin", "parts_catalog", "public_dataset", "other"] },
+          "title": { "type": "string", "minLength": 1 },
+          "url_or_identifier": { "type": "string", "minLength": 1 },
+          "publisher": { "type": ["string", "null"] },
+          "published_date": { "type": ["string", "null"], "format": "date" },
+          "accessed_date": { "type": ["string", "null"], "format": "date" },
+          "license": { "type": "string", "minLength": 1 },
+          "attribution_required": { "type": "boolean" }
+        }
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reviewed_by", "reviewed_date"],
+      "properties": {
+        "status": { "type": "string", "enum": ["unreviewed", "source_checked", "technician_reviewed", "manufacturer_confirmed", "rejected"] },
+        "reviewed_by": { "type": ["string", "null"] },
+        "reviewed_date": { "type": ["string", "null"], "format": "date" },
+        "limitations": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
