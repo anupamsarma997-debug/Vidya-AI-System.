@@ -45,9 +45,10 @@ Do not interpret proposed targets or diagrams as measured performance. No accura
 ## Documentation
 - [Android app shell and build instructions](docs/android-app-shell.md)
 - [Architecture](docs/architecture.md)
-- [Dataset governance and source-backed shortlist](docs/dataset-governance.md)
+- [Dataset governance, licensing, and acquisition instructions](docs/dataset-governance.md)
 - [Testing and release plan](docs/testing-plan.md)
-- [Dataset register template](data/dataset-register.csv)
+- [Dataset register and acquisition status](data/dataset-register.csv)
+- [Dataset archive safety verifier](tools/verify_dataset_archive.py)
 - [Machine/part data model](docs/machine-part-data-model.md)
 - [Offline record validation](docs/offline-record-validation.md)
 - [Offline machine/part catalogue](docs/offline-catalogue.md)
