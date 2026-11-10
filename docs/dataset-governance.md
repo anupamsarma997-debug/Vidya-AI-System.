@@ -41,3 +41,25 @@ These entries are leads for evaluation, not downloaded assets or approved traini
 2. Keep MVTec and Kolektor datasets in a separate non-commercial research track unless written commercial permission is obtained.
 3. Do not merge surface-defect labels into component-identity labels. A scratch mask is not a part name, fault diagnosis, or repair instruction.
 4. No archive has been downloaded or extracted as part of this shortlist. CSV status remains `identified` or `license_review` until acquisition evidence is recorded.
+
+## Additional candidate: VisA (commercially usable subject to CC BY 4.0 compliance)
+
+The [AWS Open Data Registry entry for VisA](https://registry.opendata.aws/visa/) states CC BY 4.0 and lists a public S3 archive, `s3://amazon-visual-anomaly/VisA_20220922.tar`, in `us-west-2`. The registry describes 10,821 images across 12 object classes (9,621 normal and 1,200 anomalous), with image- and pixel-level annotations. This is the strongest currently identified candidate for a commercial research baseline, provided Vidya preserves attribution, license notice, and source citation and reviews the upstream documentation before redistribution.
+
+**Task boundary:** VisA is an industrial visual anomaly dataset. It can support anomaly/defect detection research, but it does not provide a general machine-part identity catalogue, OEM fitment, error-code meaning, repair manuals, or verified repair procedures. Keep these labels and evaluation tasks separate.
+
+### Repeatable archive acquisition and verification
+
+The archive is not included in this repository. On a computer or cloud shell with AWS CLI installed, the source registry documents anonymous access without an AWS account:
+
+```bash
+aws s3 cp s3://amazon-visual-anomaly/VisA_20220922.tar ./VisA_20220922.tar --no-sign-request --region us-west-2
+sha256sum VisA_20220922.tar
+python tools/verify_dataset_archive.py VisA_20220922.tar
+```
+
+Record the actual byte size, SHA-256, date, and verification output in the dataset register only after the commands succeed. Do not commit the archive to Git. The verifier checks TAR readability and rejects unsafe member paths and links; it does not establish label correctness, image quality, or license compliance.
+
+### Newer MVTec AD 2 candidate
+
+[MVTec AD 2](https://www.mvtec.com/research-teaching/datasets/mvtec-ad-2) contains more than 8,000 images across eight challenging anomaly scenarios, but its official page states CC BY-NC-SA 4.0 and explicitly restricts commercial use. It remains in the non-commercial research track unless separate written permission is obtained.
