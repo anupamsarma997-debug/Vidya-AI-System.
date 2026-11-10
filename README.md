@@ -49,6 +49,7 @@ Do not interpret proposed targets or diagrams as measured performance. No accura
 - [Testing and release plan](docs/testing-plan.md)
 - [Dataset register and acquisition status](data/dataset-register.csv)
 - [Dataset archive safety verifier](tools/verify_dataset_archive.py)
+- [Real dataset shortlist and baseline training workflow](docs/dataset-training.md)
 - [Machine/part data model](docs/machine-part-data-model.md)
 - [Offline record validation](docs/offline-record-validation.md)
 - [Offline machine/part catalogue](docs/offline-catalogue.md)
