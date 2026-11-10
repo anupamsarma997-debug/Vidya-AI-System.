@@ -151,7 +151,7 @@ class ProjectStatusTest {
 
     @Test
     fun assetRepositoryRejectsStructurallyInvalidRecords() {
-        val repository = MachinePartAssetRepository { validJson().replace("\"sources\":[{", "\"sources\":[]") }
+        val repository = MachinePartAssetRepository { validJson().replace("\"sources\":[{\"source_type\":\"manufacturer_manual\",\"title\":\"Manual\",\"url_or_identifier\":\"manual-1\",\"license\":\"permission required\",\"attribution_required\":true}]", "\"sources\":[]") }
         try {
             repository.load()
             throw AssertionError("Invalid source-less record should fail")
