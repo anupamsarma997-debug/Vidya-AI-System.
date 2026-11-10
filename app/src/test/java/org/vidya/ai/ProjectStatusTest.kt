@@ -110,4 +110,53 @@ class ProjectStatusTest {
         assertTrue(MachinePartCatalog.search("  ", listOf(reviewed)).isEmpty())
         assertTrue(MachinePartCatalog.search("compressor", listOf(reviewed)).isEmpty())
     }
+
+    private fun validJson(status: String = "technician_reviewed") = """
+        [{
+          "record_id":"pump-x-impeller",
+          "machine":{"category":"pump","manufacturer":"Example Co","model":"X1","variant":null,"model_year":2024},
+          "part":{"part_id":"P-01","name":"Impeller","function":"Moves fluid","oem_part_number":"OEM-1"},
+          "sources":[{"source_type":"manufacturer_manual","title":"Manual","url_or_identifier":"manual-1","license":"permission required","attribution_required":true}],
+          "verification":{"status":"$status","reviewed_by":null,"reviewed_date":null}
+        }]
+    """.trimIndent()
+
+    @Test
+    fun jsonLoaderMapsSchemaFieldsIntoDomainRecord() {
+        val loaded = MachinePartJsonLoader.parse(validJson())
+        assertEquals(1, loaded.size)
+        assertEquals("Example Co", loaded[0].machine.manufacturer)
+        assertEquals("Impeller", loaded[0].part.name)
+        assertEquals(VerificationStatus.TECHNICIAN_REVIEWED, loaded[0].verification)
+    }
+
+    @Test
+    fun jsonLoaderRejectsUnknownVerificationStatus() {
+        try {
+            MachinePartJsonLoader.parse(validJson("trusted_by_internet"))
+            throw AssertionError("Unknown verification status should fail")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("verification.status"))
+        }
+    }
+
+    @Test
+    fun assetRepositoryLoadsEmptyStarterCatalogueWithoutInventingRecords() {
+        val repository = MachinePartAssetRepository { name ->
+            assertEquals("machine_parts.json", name)
+            "[]"
+        }
+        assertTrue(repository.load().isEmpty())
+    }
+
+    @Test
+    fun assetRepositoryRejectsStructurallyInvalidRecords() {
+        val repository = MachinePartAssetRepository { validJson().replace("\"sources\":[{", "\"sources\":[]") }
+        try {
+            repository.load()
+            throw AssertionError("Invalid source-less record should fail")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("at least one source"))
+        }
+    }
 }
