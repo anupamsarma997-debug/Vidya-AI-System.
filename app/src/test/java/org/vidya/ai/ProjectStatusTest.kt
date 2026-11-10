@@ -80,4 +80,34 @@ class ProjectStatusTest {
             MachinePartRecordValidator.validate(invalid)
         )
     }
+
+    @Test
+    fun catalogueFindsReviewedPartCaseInsensitively() {
+        val reviewed = validRecord(VerificationStatus.TECHNICIAN_REVIEWED)
+        assertEquals(listOf(reviewed), MachinePartCatalog.search("IMPELLER", listOf(reviewed)))
+    }
+
+    @Test
+    fun catalogueExcludesUnreviewedAndInvalidRecords() {
+        val reviewed = validRecord(VerificationStatus.MANUFACTURER_CONFIRMED)
+        val unreviewed = validRecord()
+        val invalid = reviewed.copy(sources = emptyList())
+        assertEquals(listOf(reviewed), MachinePartCatalog.search("pump", listOf(
+            unreviewed, invalid, reviewed
+        )))
+    }
+
+    @Test
+    fun catalogueMatchesMachineAndPartIdentifiers() {
+        val reviewed = validRecord(VerificationStatus.TECHNICIAN_REVIEWED)
+        assertEquals(listOf(reviewed), MachinePartCatalog.search("model x", listOf(reviewed)))
+        assertEquals(listOf(reviewed), MachinePartCatalog.search("part-001", listOf(reviewed)))
+    }
+
+    @Test
+    fun catalogueReturnsNoResultsForBlankOrMissingQuery() {
+        val reviewed = validRecord(VerificationStatus.TECHNICIAN_REVIEWED)
+        assertTrue(MachinePartCatalog.search("  ", listOf(reviewed)).isEmpty())
+        assertTrue(MachinePartCatalog.search("compressor", listOf(reviewed)).isEmpty())
+    }
 }
