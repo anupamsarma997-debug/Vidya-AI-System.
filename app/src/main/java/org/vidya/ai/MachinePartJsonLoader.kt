@@ -3,10 +3,7 @@ package org.vidya.ai
 import org.json.JSONArray
 import org.json.JSONObject
 
-/**
- * Converts the documented snake_case JSON record format into domain records.
- * Parsing/structural validation is not proof that the source or technical content is true.
- */
+/** Parses source-traceable machine knowledge; parsing does not establish technical truth. */
 object MachinePartJsonLoader {
     fun parse(json: String): List<MachinePartRecord> {
         val root = JSONArray(json)
@@ -26,7 +23,7 @@ object MachinePartJsonLoader {
             ?: throw IllegalArgumentException("records[$index].part is required")
         val sourceArray = item.optJSONArray("sources")
             ?: throw IllegalArgumentException("records[$index].sources is required")
-        val verificationObject = item.optJSONObject("verification")
+        val verification = item.optJSONObject("verification")
             ?: throw IllegalArgumentException("records[$index].verification is required")
 
         val sources = buildList {
@@ -43,8 +40,7 @@ object MachinePartJsonLoader {
             }
         }
 
-        val year = machine.optionalYear("model_year")
-        val status = when (verificationObject.requiredString("status")) {
+        val status = when (verification.requiredString("status")) {
             "unreviewed" -> VerificationStatus.UNREVIEWED
             "source_checked" -> VerificationStatus.SOURCE_CHECKED
             "technician_reviewed" -> VerificationStatus.TECHNICIAN_REVIEWED
@@ -60,16 +56,46 @@ object MachinePartJsonLoader {
                 manufacturer = machine.requiredString("manufacturer"),
                 model = machine.requiredString("model"),
                 variant = machine.optionalString("variant"),
-                modelYear = year
+                modelYear = machine.optionalYear("model_year"),
+                serialRange = machine.optionalString("serial_range")
             ),
             part = PartIdentity(
                 partId = part.requiredString("part_id"),
                 name = part.requiredString("name"),
                 function = part.requiredString("function"),
-                oemPartNumber = part.optionalString("oem_part_number")
+                oemPartNumber = part.optionalString("oem_part_number"),
+                locationDescription = part.optionalString("location_description"),
+                compatibleVariants = part.optionalStringArray("compatible_variants")
             ),
             sources = sources,
-            verification = status
+            verification = status,
+            symptoms = item.optionalObjectArray("symptoms") { symptom ->
+                SymptomReference(
+                    symptomId = symptom.requiredString("symptom_id"),
+                    description = symptom.requiredString("description"),
+                    possibleCauses = symptom.optionalStringArray("possible_causes")
+                )
+            },
+            errorCodes = item.optionalObjectArray("error_codes") { error ->
+                ErrorCodeReference(
+                    code = error.requiredString("code"),
+                    meaning = error.requiredString("meaning"),
+                    machineScope = error.requiredString("machine_scope")
+                )
+            },
+            hazards = item.optionalStringArray("hazards").map { value ->
+                when (value) {
+                    "high_voltage" -> HazardCategory.HIGH_VOLTAGE
+                    "fuel_or_gas" -> HazardCategory.FUEL_OR_GAS
+                    "pressurized_system" -> HazardCategory.PRESSURIZED_SYSTEM
+                    "suspended_load" -> HazardCategory.SUSPENDED_LOAD
+                    "moving_machinery" -> HazardCategory.MOVING_MACHINERY
+                    "hot_surface" -> HazardCategory.HOT_SURFACE
+                    "chemical_exposure" -> HazardCategory.CHEMICAL_EXPOSURE
+                    "unknown" -> HazardCategory.UNKNOWN
+                    else -> throw IllegalArgumentException("records[$index].hazards contains unknown value: $value")
+                }
+            }
         )
     }
 
@@ -105,9 +131,31 @@ object MachinePartJsonLoader {
         }
         return number.toInt()
     }
+
+    private fun JSONObject.optionalStringArray(key: String): List<String> {
+        val array = optJSONArray(key) ?: return emptyList()
+        return buildList {
+            for (i in 0 until array.length()) {
+                val value = array.get(i)
+                require(value is String && value.isNotBlank()) { "$key[$i] must be a non-empty string" }
+                add(value.trim())
+            }
+        }
+    }
+
+    private fun <T> JSONObject.optionalObjectArray(key: String, map: (JSONObject) -> T): List<T> {
+        val array = optJSONArray(key) ?: return emptyList()
+        return buildList {
+            for (i in 0 until array.length()) {
+                val value = array.optJSONObject(i)
+                    ?: throw IllegalArgumentException("$key[$i] must be an object")
+                add(map(value))
+            }
+        }
+    }
 }
 
-/** Reads the versioned catalogue asset shipped inside the APK. */
+/** Reads the catalogue asset shipped inside the APK and validates its structure. */
 class MachinePartAssetRepository(private val readAsset: (String) -> String) {
     fun load(): List<MachinePartRecord> {
         val parsed = MachinePartJsonLoader.parse(readAsset("machine_parts.json"))
@@ -115,7 +163,6 @@ class MachinePartAssetRepository(private val readAsset: (String) -> String) {
             MachinePartRecordValidator.validate(record).map { "records[$index]: $it" }
         }
         require(errors.isEmpty()) { errors.joinToString("; ") }
-
         val duplicateIds = parsed.groupBy { it.recordId }.filterValues { it.size > 1 }.keys
         require(duplicateIds.isEmpty()) { "duplicate record_id values: ${duplicateIds.joinToString()}" }
         return parsed
