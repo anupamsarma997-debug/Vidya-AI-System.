@@ -38,12 +38,12 @@ object MachinePartJsonLoader {
                     title = source.requiredString("title"),
                     urlOrIdentifier = source.requiredString("url_or_identifier"),
                     license = source.requiredString("license"),
-                    attributionRequired = source.optBoolean("attribution_required", false)
+                    attributionRequired = source.optionalBoolean("attribution_required", false)
                 ))
             }
         }
 
-        val year = if (machine.isNull("model_year")) null else machine.optInt("model_year")
+        val year = machine.optionalYear("model_year")
         val status = when (verificationObject.requiredString("status")) {
             "unreviewed" -> VerificationStatus.UNREVIEWED
             "source_checked" -> VerificationStatus.SOURCE_CHECKED
@@ -59,14 +59,14 @@ object MachinePartJsonLoader {
                 category = machine.requiredString("category"),
                 manufacturer = machine.requiredString("manufacturer"),
                 model = machine.requiredString("model"),
-                variant = machine.nullableString("variant"),
+                variant = machine.optionalString("variant"),
                 modelYear = year
             ),
             part = PartIdentity(
                 partId = part.requiredString("part_id"),
                 name = part.requiredString("name"),
                 function = part.requiredString("function"),
-                oemPartNumber = part.nullableString("oem_part_number")
+                oemPartNumber = part.optionalString("oem_part_number")
             ),
             sources = sources,
             verification = status
@@ -74,13 +74,37 @@ object MachinePartJsonLoader {
     }
 
     private fun JSONObject.requiredString(key: String): String {
-        val value = optString(key, "").trim()
-        if (value.isEmpty()) throw IllegalArgumentException("$key is required")
-        return value
+        require(has(key) && !isNull(key)) { "$key is required" }
+        val raw = get(key)
+        require(raw is String && raw.isNotBlank()) { "$key must be a non-empty string" }
+        return raw.trim()
     }
 
-    private fun JSONObject.nullableString(key: String): String? =
-        if (isNull(key)) null else optString(key).takeIf { it.isNotBlank() }
+    private fun JSONObject.optionalString(key: String): String? {
+        if (!has(key) || isNull(key)) return null
+        val raw = get(key)
+        require(raw is String) { "$key must be a string or null" }
+        return raw.trim().takeIf { it.isNotEmpty() }
+    }
+
+    private fun JSONObject.optionalBoolean(key: String, default: Boolean): Boolean {
+        if (!has(key) || isNull(key)) return default
+        val raw = get(key)
+        require(raw is Boolean) { "$key must be a boolean" }
+        return raw
+    }
+
+    private fun JSONObject.optionalYear(key: String): Int? {
+        if (!has(key) || isNull(key)) return null
+        val raw = get(key)
+        require(raw is Number) { "$key must be an integer or null" }
+        val number = raw.toDouble()
+        require(number.isFinite() && number % 1.0 == 0.0 &&
+            number >= Int.MIN_VALUE && number <= Int.MAX_VALUE) {
+            "$key must be an integer or null"
+        }
+        return number.toInt()
+    }
 }
 
 /** Reads the versioned catalogue asset shipped inside the APK. */
@@ -91,6 +115,9 @@ class MachinePartAssetRepository(private val readAsset: (String) -> String) {
             MachinePartRecordValidator.validate(record).map { "records[$index]: $it" }
         }
         require(errors.isEmpty()) { errors.joinToString("; ") }
+
+        val duplicateIds = parsed.groupBy { it.recordId }.filterValues { it.size > 1 }.keys
+        require(duplicateIds.isEmpty()) { "duplicate record_id values: ${duplicateIds.joinToString()}" }
         return parsed
     }
 }
