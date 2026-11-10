@@ -194,4 +194,36 @@ class ProjectStatusTest {
         }
     }
 
+
+    @Test
+    fun jsonLoaderMapsSymptomsErrorCodesAndHazards() {
+        val enriched = validJson().replace(
+            "\"verification\":",
+            "\"symptoms\":[{\"symptom_id\":\"S-1\",\"description\":\"Low flow\",\"possible_causes\":[\"Blocked filter\"]}]," +
+                "\"error_codes\":[{\"code\":\"E-01\",\"meaning\":\"Flow fault\",\"machine_scope\":\"X1\"}]," +
+                "\"hazards\":[\"high_voltage\",\"moving_machinery\"]," +
+                "\"verification\":"
+        )
+        val record = MachinePartJsonLoader.parse(enriched).single()
+        assertEquals("Low flow", record.symptoms.single().description)
+        assertEquals("Blocked filter", record.symptoms.single().possibleCauses.single())
+        assertEquals("E-01", record.errorCodes.single().code)
+        assertTrue(record.hazards.contains(HazardCategory.HIGH_VOLTAGE))
+        assertTrue(SafetyGate.requiresQualifiedTechnician(record.hazards.first()))
+    }
+
+    @Test
+    fun jsonLoaderRejectsUnknownHazardCategory() {
+        val malformed = validJson().replace(
+            "\"verification\":",
+            "\"hazards\":[\"safe_to_open\"],\"verification\":"
+        )
+        try {
+            MachinePartJsonLoader.parse(malformed)
+            throw AssertionError("Unknown hazard values must be rejected")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("unknown value"))
+        }
+    }
+
 }
