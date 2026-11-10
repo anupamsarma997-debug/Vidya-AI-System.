@@ -1,6 +1,6 @@
 # JSON asset loader
 
-The Android asset repository reads `machine_parts.json` from the APK assets directory. The parser maps the documented snake_case fields into the Kotlin domain model and rejects unknown verification statuses or missing required structures.
+The Android asset repository reads `machine_parts.json` from the APK assets directory. The parser maps the documented snake_case fields into the Kotlin domain model, enforces JSON field types (including integer model years and boolean attribution flags), rejects unknown verification statuses or missing required structures, and the repository rejects duplicate record IDs.
 
 ## Add data safely
 
