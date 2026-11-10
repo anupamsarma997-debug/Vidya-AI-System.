@@ -83,18 +83,25 @@ class MainActivity : Activity() {
             query.isBlank() -> "Enter a machine, model, part name or identifier."
             matches.isEmpty() -> "No reviewed reference records found. Do not treat this as proof that a part does not exist."
             else -> matches.joinToString("\n\n") { record ->
-                "${record.machine.manufacturer} ${record.machine.model}\n" +
-                    "${record.part.name} (${record.part.partId})\n" +
-                    record.part.function +
-                    if (record.symptoms.isNotEmpty()) "\nSymptoms: " +
-                        record.symptoms.joinToString("; ") { it.description } else "" +
-                    if (record.errorCodes.isNotEmpty()) "\nError codes: " +
-                        record.errorCodes.joinToString("; ") { "${it.code}: ${it.meaning} [${it.machineScope}]" } else "" +
-                    if (record.hazards.isNotEmpty()) "\nSafety hazards: " +
-                        record.hazards.joinToString(", ") else "" +
-                    "\nSources: " + record.sources.joinToString("; ") {
-                        "${it.title} (${it.license})"
+                buildList {
+                    add("${record.machine.manufacturer} ${record.machine.model}")
+                    add("${record.part.name} (${record.part.partId})")
+                    add(record.part.function)
+                    if (record.symptoms.isNotEmpty()) {
+                        add("Symptoms: " + record.symptoms.joinToString("; ") { it.description })
                     }
+                    if (record.errorCodes.isNotEmpty()) {
+                        add("Error codes: " + record.errorCodes.joinToString("; ") {
+                            "${it.code}: ${it.meaning} [${it.machineScope}]"
+                        })
+                    }
+                    if (record.hazards.isNotEmpty()) {
+                        add("Safety hazards: " + record.hazards.joinToString(", "))
+                    }
+                    add("Sources: " + record.sources.joinToString("; ") {
+                        "${it.title} (${it.license})"
+                    })
+                }.joinToString("\n")
             }
         }
     }
