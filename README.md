@@ -12,7 +12,7 @@ Vidya is intended to become an offline-first assistant that helps users identify
 - Kotlin machine/part record model, structural validator, reviewed-record offline search catalogue, and JSON asset loader with unit tests.
 - A minimal Kotlin Android application shell is now present under `app/`.
 - GitHub Actions CI is configured to build a debug APK and run unit tests.
-- The bundled machine-parts catalogue is intentionally empty until traceable, licensed records are acquired and reviewed.
+- The bundled machine-parts catalogue is intentionally empty until traceable, licensed records are acquired and reviewed. A source-backed dataset shortlist is documented; none of those archives is claimed as downloaded.
 - Camera recognition, model weights, external datasets, and repair workflows are still not implemented.
 
 Do not interpret proposed targets or diagrams as measured performance. No accuracy, latency, or safety claim is made until tested and documented.
@@ -45,7 +45,7 @@ Do not interpret proposed targets or diagrams as measured performance. No accura
 ## Documentation
 - [Android app shell and build instructions](docs/android-app-shell.md)
 - [Architecture](docs/architecture.md)
-- [Dataset governance](docs/dataset-governance.md)
+- [Dataset governance and source-backed shortlist](docs/dataset-governance.md)
 - [Testing and release plan](docs/testing-plan.md)
 - [Dataset register template](data/dataset-register.csv)
 - [Machine/part data model](docs/machine-part-data-model.md)
