@@ -7,7 +7,9 @@ Vidya is intended to become an offline-first assistant that helps users identify
 ## Current verified repository contents
 - Project overview and development documentation.
 - Proposed architecture, dataset governance, and validation plan.
-- No application source or model weights have been added yet.
+- A minimal Kotlin Android application shell is now present under `app/`.
+- GitHub Actions CI is configured to build a debug APK and run unit tests.
+- Camera recognition, model weights, datasets, and repair workflows are still not implemented.
 
 Do not interpret proposed targets or diagrams as measured performance. No accuracy, latency, or safety claim is made until tested and documented.
 
@@ -23,7 +25,7 @@ Do not interpret proposed targets or diagrams as measured performance. No accura
 | Stage | Deliverable | Completion evidence |
 |---|---|---|
 | 0 | Repository foundation | Documentation and conventions |
-| 1 | Android app shell | Reproducible debug build and installation test |
+| 1 | Android app shell | Kotlin launcher screen added; build and installation still need CI/device verification |
 | 2 | Machine/parts knowledge schema | Versioned records with traceable sources |
 | 3 | Dataset acquisition | Download manifest, licenses, hashes, provenance |
 | 4 | Baseline vision model | Reproducible training and held-out evaluation |
@@ -37,6 +39,7 @@ Do not interpret proposed targets or diagrams as measured performance. No accura
 - Optional backend for controlled updates; core guidance should degrade safely offline.
 
 ## Documentation
+- [Android app shell and build instructions](docs/android-app-shell.md)
 - [Architecture](docs/architecture.md)
 - [Dataset governance](docs/dataset-governance.md)
 - [Testing and release plan](docs/testing-plan.md)
