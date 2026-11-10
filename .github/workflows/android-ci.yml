@@ -21,7 +21,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: "8.9"
-      - name: Test dataset archive verifier\n        run: python -m unittest discover -s tools/tests -v\n      - name: Build debug APK
+      - name: Compile Python tooling
+        run: python -m py_compile tools/verify_dataset_archive.py tools/train_imagefolder_baseline.py
+      - name: Test dataset archive verifier
+        run: python -m unittest discover -s tools/tests -v
+      - name: Build debug APK
         run: gradle --no-daemon :app:assembleDebug
       - name: Run unit tests
         run: gradle --no-daemon :app:testDebugUnitTest
