@@ -226,4 +226,19 @@ class ProjectStatusTest {
         }
     }
 
+
+    @Test
+    fun jsonLoaderRejectsWrongTypeForSymptomsArray() {
+        val malformed = validJson().replace(
+            "\"verification\":",
+            "\"symptoms\":\"not-an-array\",\"verification\":"
+        )
+        try {
+            MachinePartJsonLoader.parse(malformed)
+            throw AssertionError("Malformed symptoms value must be rejected")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("symptoms must be an array"))
+        }
+    }
+
 }
