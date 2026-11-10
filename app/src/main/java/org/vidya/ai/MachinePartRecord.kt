@@ -1,22 +1,34 @@
 package org.vidya.ai
 
-/**
- * Dependency-free domain model for source-traceable machine knowledge.
- * This layer validates record completeness; it does not verify technical truth.
- */
+/** Dependency-free, source-traceable machine knowledge. Structural validity is not technical verification. */
 data class MachineIdentity(
     val category: String,
     val manufacturer: String,
     val model: String,
     val variant: String? = null,
-    val modelYear: Int? = null
+    val modelYear: Int? = null,
+    val serialRange: String? = null
 )
 
 data class PartIdentity(
     val partId: String,
     val name: String,
     val function: String,
-    val oemPartNumber: String? = null
+    val oemPartNumber: String? = null,
+    val locationDescription: String? = null,
+    val compatibleVariants: List<String> = emptyList()
+)
+
+data class SymptomReference(
+    val symptomId: String,
+    val description: String,
+    val possibleCauses: List<String> = emptyList()
+)
+
+data class ErrorCodeReference(
+    val code: String,
+    val meaning: String,
+    val machineScope: String
 )
 
 data class KnowledgeSource(
@@ -28,11 +40,7 @@ data class KnowledgeSource(
 )
 
 enum class VerificationStatus {
-    UNREVIEWED,
-    SOURCE_CHECKED,
-    TECHNICIAN_REVIEWED,
-    MANUFACTURER_CONFIRMED,
-    REJECTED
+    UNREVIEWED, SOURCE_CHECKED, TECHNICIAN_REVIEWED, MANUFACTURER_CONFIRMED, REJECTED
 }
 
 data class MachinePartRecord(
@@ -40,7 +48,10 @@ data class MachinePartRecord(
     val machine: MachineIdentity,
     val part: PartIdentity,
     val sources: List<KnowledgeSource>,
-    val verification: VerificationStatus
+    val verification: VerificationStatus,
+    val symptoms: List<SymptomReference> = emptyList(),
+    val errorCodes: List<ErrorCodeReference> = emptyList(),
+    val hazards: List<HazardCategory> = emptyList()
 )
 
 object MachinePartRecordValidator {
@@ -62,9 +73,17 @@ object MachinePartRecordValidator {
             if (source.urlOrIdentifier.isBlank()) add("sources[$index].urlOrIdentifier is required")
             if (source.license.isBlank()) add("sources[$index].license is required")
         }
+        record.symptoms.forEachIndexed { index, symptom ->
+            if (symptom.symptomId.isBlank()) add("symptoms[$index].symptomId is required")
+            if (symptom.description.isBlank()) add("symptoms[$index].description is required")
+        }
+        record.errorCodes.forEachIndexed { index, error ->
+            if (error.code.isBlank()) add("errorCodes[$index].code is required")
+            if (error.meaning.isBlank()) add("errorCodes[$index].meaning is required")
+            if (error.machineScope.isBlank()) add("errorCodes[$index].machineScope is required")
+        }
     }
 
-    /** Only reviewed, complete records may be considered for display as reference material. */
     fun mayDisplayAsReviewedReference(record: MachinePartRecord): Boolean =
         validate(record).isEmpty() &&
             record.verification in setOf(
