@@ -159,4 +159,39 @@ class ProjectStatusTest {
             assertTrue(expected.message!!.contains("at least one source"))
         }
     }
+    @Test
+    fun jsonLoaderRejectsStringInsteadOfNumericModelYear() {
+        val malformed = validJson().replace("\"model_year\":2024", "\"model_year\":\"2024\"")
+        try {
+            MachinePartJsonLoader.parse(malformed)
+            throw AssertionError("String model year must be rejected")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("model_year must be an integer"))
+        }
+    }
+
+    @Test
+    fun jsonLoaderRejectsWrongTypeForAttributionFlag() {
+        val malformed = validJson().replace("\"attribution_required\":true", "\"attribution_required\":\"yes\"")
+        try {
+            MachinePartJsonLoader.parse(malformed)
+            throw AssertionError("Non-boolean attribution flag must be rejected")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("attribution_required must be a boolean"))
+        }
+    }
+
+    @Test
+    fun assetRepositoryRejectsDuplicateRecordIds() {
+        val oneRecord = validJson().removePrefix("[").removeSuffix("]")
+        val duplicate = "[$oneRecord,$oneRecord]"
+        val repository = MachinePartAssetRepository { duplicate }
+        try {
+            repository.load()
+            throw AssertionError("Duplicate record IDs must be rejected")
+        } catch (expected: IllegalArgumentException) {
+            assertTrue(expected.message!!.contains("duplicate record_id"))
+        }
+    }
+
 }
